@@ -74,8 +74,7 @@ def pandas_builder(jsondata):
     Returns:
         A pandas DataFrame built from the provided JSON data.
     """
-    returndf = pd.DataFrame(jsondata)
-    return returndf
+    return pd.DataFrame(jsondata)
 
 def robyn_api(argument,payload=0,api='http://127.0.0.1:9999/{}'):
     """
@@ -88,14 +87,12 @@ def robyn_api(argument,payload=0,api='http://127.0.0.1:9999/{}'):
         The response from the API as a JSON object.
     """
     #if no api string is provided the function with default to "http://127.0.0.1:9999/{}" i.e. localhost at port 9999
-    if(payload==0):
+    if (payload==0):
         response = requests.get(api.format(argument))
-        respJson = json.loads(response.content.decode('utf-8'))
-        return respJson
     else:
         response = requests.post(api.format(argument),data=payload)
-        respJson = json.loads(response.content.decode('utf-8'))
-        return respJson
+
+    return json.loads(response.content.decode('utf-8'))
 
 def render_spendexposure(InputJson,max_size=(1000, 1500)):
     """
@@ -175,9 +172,7 @@ def load_modeldata(sol_id,InputJson,OutputJson):
         'height' : 20
     }
 
-    # Get response
-    onepager = robyn_api('robyn_onepagers',payload=payload)
-    return onepager
+    return robyn_api('robyn_onepagers',payload=payload)
 
 def create_robyn_directory(path="~/RobynOutcomes"):
     """
@@ -195,20 +190,18 @@ def create_robyn_directory(path="~/RobynOutcomes"):
         print('No path specified. Using default arugments')
     else:
         print('Using specified path')
-    
+
     #if path ends with '/' add it to the end
-    if('/' != path[-1:]):
+    if path[-1:] != '/':
         path = path+'/'
-    
-    ##check path to see if is a valid directory
-    isExist = os.path.exists(path)
-    if not isExist:
-       # Create a new directory because it does not exist
-       os.makedirs(path)
-       print('Path did not exist. Creating path:',path)
-    else:
+
+    if isExist := os.path.exists(path):
         print('Path exists: ',path)
-    
+
+    else:
+        # Create a new directory because it does not exist
+        os.makedirs(path)
+        print('Path did not exist. Creating path:',path)
     return path
         
 def writefile(datset,path,sol_id):
@@ -223,9 +216,8 @@ def writefile(datset,path,sol_id):
     """
     updatedpath = create_robyn_directory(path)
     imagepath = updatedpath+sol_id
-    out_file = open(imagepath+'.jpg', 'wb')
-    out_file.write(datset)
-    out_file.close()
+    with open(imagepath+'.jpg', 'wb') as out_file:
+        out_file.write(datset)
     print('Onepager written to path:',imagepath)
 
 def load_onepager(InputJson,OutputJson,path,sol='all',top_pareto=False,write=False,max_size=(1000, 1500)):
@@ -242,7 +234,7 @@ def load_onepager(InputJson,OutputJson,path,sol='all',top_pareto=False,write=Fal
     Returns:
         None. The function renders the one-page summaries and displays them using the `display()` function from IPython.
     """
-    if(top_pareto==True and sol=='all'):
+    if (top_pareto==True and sol=='all'):
         print('Fetching one pager data for top models')
         for i in range(len(OutputJson['clusters']['models'])):
             sol_id = OutputJson['clusters']['models'][i]['solID']
@@ -255,7 +247,7 @@ def load_onepager(InputJson,OutputJson,path,sol='all',top_pareto=False,write=Fal
             display(image)
     elif(top_pareto==False and sol=='all'):
         warnings.warn("Too many one pagers to load, please either select top_pareto=True or just specify a solution id")
-    elif(top_pareto==False and sol!='all'):
+    elif top_pareto == False:
         if(sol in OutputJson['allSolutions']):
             print('Fetching one pager for specified solution id')
             sol_id = sol
